@@ -1,21 +1,38 @@
-import React, { useState } from 'react'
-import { Box, Button, Container, Heading, Input, useColorModeValue, VStack } from "@chakra-ui/react";
+import React, { useState } from 'react';
+import { Box, Button, Container, Heading, Input, useColorModeValue, useToast, VStack } from "@chakra-ui/react";
 import { useProductStore } from '../store/product';
-
 
 const CreatePage = () => {
     const [newProduct, setNewProduct] = useState({
         name: "",
         price: "",
         image: ""
-    })
-    const { createProduct } = useProductStore()
+    });
+    const toast = useToast();
+    const { createProduct } = useProductStore();
+
     const handleAddProduct = async () => {
-        const { success, message } = await createProduct(newProduct)
-        console.log("success",success);
-        console.log("Message",message);
-        
-    }
+        const { success, message } = await createProduct(newProduct);
+        console.log("success", success);
+        console.log("Message", message);
+
+        if (!success) {
+            toast({
+                title: "Error",
+                description: message,
+                status: "error",
+                isClosable: true
+            });
+        } else {
+            toast({
+                title: "Success",
+                description: message,
+                status: "success",
+                isClosable: true
+            });
+        }
+        setNewProduct({ name: "", price: "", image: "" })
+    };
 
     return (
         <Container maxW={"container.sm"}>
@@ -37,7 +54,7 @@ const CreatePage = () => {
                             name='price'
                             type='number'
                             value={newProduct.price}
-                            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                            onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) || "" })}
                         />
                         <Input
                             placeholder='Image URL'
@@ -53,7 +70,7 @@ const CreatePage = () => {
                 </Box>
             </VStack>
         </Container>
-    )
-}
+    );
+};
 
-export default CreatePage
+export default CreatePage;
